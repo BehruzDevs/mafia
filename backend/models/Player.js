@@ -12,7 +12,6 @@ const playerSchema = new mongoose.Schema({
     enum: ['alive', 'dead'], 
     default: 'alive' 
   },
-  // Masalan, o'yin sessiyasi yoki boshqa ma'lumotlar
   gameId: { type: mongoose.Schema.Types.ObjectId, ref: 'Game' }
 });
 

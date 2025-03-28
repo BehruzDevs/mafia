@@ -1,29 +1,31 @@
-// server.js (Backendni ishga tushiruvchi fayl)
 const express = require('express');
 const mongoose = require('mongoose');
 const socketIo = require('socket.io');
 const http = require('http');
 const cors = require('cors');
 
-// Express ilovasini yaratish
+// Import the playerRoutes file
+const playerRoutes = require('./routes/playerRoutes');
+
+// Express application setup
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// MongoDB bilan ulanish
+// MongoDB connection
 mongoose.connect('mongodb://localhost:27017/mafia_game', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("MongoDBga ulandi"))
   .catch((err) => console.log("MongoDBga ulanishda xatolik", err));
 
-// Middleware
+// Middleware setup
 app.use(cors());
 app.use(express.json());
 
-// Socket.io bilan ishlash
+// Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('Yangi foydalanuvchi ulandi:', socket.id);
 
-  // Chat uchun xabarlarni yuborish
+  // Chat messages handling
   socket.on('send_message', (message) => {
     io.emit('receive_message', message);
   });
@@ -33,18 +35,11 @@ io.on('connection', (socket) => {
   });
 });
 
-// API endpoint yaratish
-app.get('/api/players', (req, res) => {
-  // MongoDB yoki boshqa ma'lumotlar manbaidan o'yinchilarni olish
-  res.json([{ name: 'Player1' }, { name: 'Player2' }, { name: 'Player3' }]);
-});
+// Use the playerRoutes for /api/players
+app.use('/api/players', playerRoutes);
 
-// Backendni ishga tushurish
+// Start the backend server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server ${PORT} portda ishlamoqda...`);
 });
-const playerRoutes = require('./routes/playerRoutes');
-
-// API yo'llarini ulash
-app.use('/api/players', playerRoutes);
